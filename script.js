@@ -1,7 +1,7 @@
 const taskInput = document.getElementById("taskInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
-const taskColor = document.getElementById("taskColor");
+const taskColor = document.getElementById("colorSelect"); // Matched with HTML id="colorSelect"
 const taskDate = document.getElementById("taskDate");
 
 addBtn.addEventListener("click", addTask);
@@ -20,13 +20,29 @@ function addTask() {
   li.className = "task-item";
   li.style.backgroundColor = selectedColor;
 
+  // Create text container
   const span = document.createElement("span");
   span.className = "task-text";
-  span.innerHTML = `
-    ${taskText}
-    <br>
-    <small class="task-date">${selectedDate}</small>
-  `;
+  
+  // Store dynamic current text separately so editing works iteratively
+  let currentTaskText = taskText;
+
+  function updateTaskContent(text, date) {
+    span.innerHTML = ""; // Clear existing content safely
+    
+    const textNode = document.createTextNode(text);
+    span.appendChild(textNode);
+
+    if (date) {
+      span.appendChild(document.createElement("br"));
+      const dateEl = document.createElement("small");
+      dateEl.className = "task-date";
+      dateEl.textContent = date;
+      span.appendChild(dateEl);
+    }
+  }
+
+  updateTaskContent(currentTaskText, selectedDate);
 
   const buttonBox = document.createElement("div");
   buttonBox.className = "task-buttons";
@@ -44,14 +60,12 @@ function addTask() {
   editBtn.textContent = "Edit";
   editBtn.className = "edit-btn";
   editBtn.onclick = function () {
-    const updatedTask = prompt("Edit task", taskText);
+    // Prompt shows current text, not original text
+    const updatedTask = prompt("Edit task", currentTaskText);
 
     if (updatedTask !== null && updatedTask.trim() !== "") {
-      span.innerHTML = `
-        ${updatedTask}
-        <br>
-        <small class="task-date">${selectedDate}</small>
-      `;
+      currentTaskText = updatedTask.trim();
+      updateTaskContent(currentTaskText, selectedDate);
     }
   };
 
@@ -72,6 +86,9 @@ function addTask() {
 
   taskList.appendChild(li);
 
+  // Clear inputs after adding
   taskInput.value = "";
   taskDate.value = "";
 }
+
+  
